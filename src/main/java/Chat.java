@@ -10,11 +10,11 @@ import static spark.Spark.*;
 public class Chat {
 
     // this map is shared between sessions and threads, so it needs to be thread-safe (http://stackoverflow.com/a/2688817)
-    static Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();
-//    static Map<String, String> userChannelMap = new ConcurrentHashMap<>();
+    private Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();
+//    private Map<String, String> userChannelMap = new ConcurrentHashMap<>();
 
 
-    public static void main(String[] args) {
+    public void initialize() {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
         staticFiles.expireTime(1);
         webSocket("/chat", WebSocketHandler.class);
@@ -22,7 +22,7 @@ public class Chat {
     }
 
     //Sends a message from one user to all users, along with a list of current usernames
-    public static void broadcastMessage(String sender, String message) {
+    public void broadcastMessage(String sender, String message) {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
                 session.getRemote().sendString(String.valueOf(new JSONObject()
@@ -36,7 +36,7 @@ public class Chat {
     }
 
     //Builds a HTML element with a sender-name, a message, and a timestamp,
-    private static String createHtmlMessageFromSender(String sender, String message) {
+    private String createHtmlMessageFromSender(String sender, String message) {
         return article().with(
                 b(sender + " says:"),
                 p(message),
@@ -44,4 +44,37 @@ public class Chat {
         ).render();
     }
 
+    public boolean removeUser(Session user) {
+        try {
+            String username = userUsernameMap.get(user);
+            userUsernameMap.remove(user);
+            broadcastMessage("Server", (username + " left the chat"));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean addUser(Session user, String content) {
+        System.out.println("user add2");
+        try {
+            userUsernameMap.put(user, content);
+            broadcastMessage("Server", (content + " joined the chat"));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean broadcastHelper(Session user, String content) {
+        try {
+            broadcastMessage(userUsernameMap.get(user), content);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
