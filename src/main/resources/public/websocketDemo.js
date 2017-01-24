@@ -14,6 +14,16 @@ id("message").addEventListener("keypress", function (e) {
     if (e.keyCode === 13) { sendMessage(e.target.value); }
 });
 
+/*id("addChannel2").addEventListener("click", function () {
+    alert("xD");
+    //webSocket.send("userMessage=" + "kurwa");
+    //webSocket.send("addChannel=");
+});*/
+
+id("addChannel").addEventListener("click", function () {
+    alert("xD");
+});
+
 //Send a message if it's not empty, then clear the input field
 function sendMessage(message) {
     if (message !== "") {

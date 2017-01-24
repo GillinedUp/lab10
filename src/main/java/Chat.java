@@ -3,6 +3,7 @@ import org.json.*;
 import java.text.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static j2html.TagCreator.*;
 import static spark.Spark.*;
@@ -11,8 +12,9 @@ public class Chat {
 
     // this map is shared between sessions and threads, so it needs to be thread-safe (http://stackoverflow.com/a/2688817)
     private Map<Session, String> userUsernameMap = new ConcurrentHashMap<>();
-//    private Map<String, String> userChannelMap = new ConcurrentHashMap<>();
-
+    private Map<String, String> userChannelMap = new ConcurrentHashMap<>();
+    private List<String> channelList = new CopyOnWriteArrayList<>();
+    private int channelCount = 1;
 
     public void initialize() {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
@@ -57,7 +59,6 @@ public class Chat {
     }
 
     public boolean addUser(Session user, String content) {
-        System.out.println("user add2");
         try {
             userUsernameMap.put(user, content);
             broadcastMessage("Server", (content + " joined the chat"));
@@ -72,6 +73,19 @@ public class Chat {
         try {
             broadcastMessage(userUsernameMap.get(user), content);
             return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean createChannel(Session user) {
+        try {
+            String channelName = "channel" + channelCount;
+            String userName = userUsernameMap.get(user);
+            userChannelMap.put(userName, channelName);
+            channelCount++;
+            broadcastMessage("Server", (userName + " joined " + channelName));
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -32,9 +32,10 @@ public class WebSocketHandler {
                 case "userMessage":
                     if (chat.broadcastHelper(user, content)) {}
                     break;
-//            case "addChannel":
-//                Chat.userChannelMap.put(Chat.userUsernameMap.get(user), content);
-//                break;
+                case "addChannel":
+                    System.out.println("creating channel");
+                    if (chat.createChannel(user)) {}
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
