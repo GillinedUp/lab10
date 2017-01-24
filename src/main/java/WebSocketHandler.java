@@ -27,13 +27,12 @@ public class WebSocketHandler {
         try {
             switch(reason) {
                 case "username":
-                    if (chat.addUser(user, content)) {};
+                    if (chat.addUser(user, content)) {}
                     break;
                 case "userMessage":
                     if (chat.broadcastHelper(user, content)) {}
                     break;
                 case "addChannel":
-                    System.out.println("creating channel");
                     if (chat.createChannel(user)) {}
                     break;
             }
