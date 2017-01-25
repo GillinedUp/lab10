@@ -18,6 +18,10 @@ function addChannel() {
     webSocket.send("addChannel=");
 }
 
+function exitChannel() {
+    webSocket.send("exitChannel=");
+}
+
 //Send a message if it's not empty, then clear the input field
 function sendMessage(message) {
     if (message !== "") {
@@ -45,15 +49,6 @@ function insert(targetId, message) {
 function id(id) {
     return document.getElementById(id);
 }
-
-//Channels:
-//id("addChannel").addEventListener("click", function () {
-//    channelName = prompt("Please enter channel name:", "");
-//    if (channelName != "") {
-//        //add channel
-//        webSocket.send("addChannel=" + channelName);
-//    }
-//});
 
 //Cookies: usernames
 function checkCookie() {

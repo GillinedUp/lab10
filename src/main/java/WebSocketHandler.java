@@ -35,6 +35,9 @@ public class WebSocketHandler {
                 case "addChannel":
                     if (chat.createChannel(user)) {}
                     break;
+                case "exitChannel":
+                    if (chat.exitChannel(user)) {}
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -86,6 +86,19 @@ public class Chat {
             userChannelMap.put(userName, channelName);
             channelCount++;
             broadcastMessage("Server", (userName + " joined " + channelName));
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean exitChannel(Session user) {
+        try {
+            String userName = userUsernameMap.get(user);
+            userChannelMap.remove(userName);
+            broadcastMessage("Server", (userName + " left the channel"));
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
