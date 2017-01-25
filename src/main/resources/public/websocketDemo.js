@@ -21,7 +21,7 @@ function addChannel() {
 function exitChannel() {
     webSocket.send("exitChannel=");
 }
-// TODO: joinChannel doesn't work
+
 function joinChannel(channel) {
     webSocket.send("joinChannel=" + channel);
 }

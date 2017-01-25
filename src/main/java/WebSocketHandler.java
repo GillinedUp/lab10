@@ -30,7 +30,7 @@ public class WebSocketHandler {
                     if (chat.addUser(user, content)) {}
                     break;
                 case "userMessage":
-                    if (chat.broadcastHelper(user, content)) {}
+                    if (chat.broadcastInChannelHelper(user, content)) {}
                     break;
                 case "addChannel":
                     if (chat.createChannel(user)) {}
