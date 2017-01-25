@@ -38,6 +38,8 @@ public class WebSocketHandler {
                 case "exitChannel":
                     if (chat.exitChannel(user)) {}
                     break;
+                case "joinChannel":
+                    if (chat.joinChannel(user, content)) {}
             }
         } catch (Exception e) {
             e.printStackTrace();

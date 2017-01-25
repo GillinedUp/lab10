@@ -28,8 +28,9 @@ public class Chat {
         userUsernameMap.keySet().stream().filter(Session::isOpen).forEach(session -> {
             try {
                 session.getRemote().sendString(String.valueOf(new JSONObject()
-                    .put("userMessage", createHtmlMessageFromSender(sender, message))
-                    .put("userlist", userUsernameMap.values())
+                        .put("userMessage", createHtmlMessageFromSender(sender, message))
+                        .put("userlist", userUsernameMap.values())
+                        .put("channelList", channelList)
                 ));
             } catch (Exception e) {
                 e.printStackTrace();
@@ -84,6 +85,7 @@ public class Chat {
             String channelName = "channel" + channelCount;
             String userName = userUsernameMap.get(user);
             userChannelMap.put(userName, channelName);
+            channelList.add(channelName);
             channelCount++;
             broadcastMessage("Server", (userName + " joined " + channelName));
             return true;
@@ -96,9 +98,31 @@ public class Chat {
     public boolean exitChannel(Session user) {
         try {
             String userName = userUsernameMap.get(user);
-            userChannelMap.remove(userName);
-            broadcastMessage("Server", (userName + " left the channel"));
-            return true;
+            if(userChannelMap.containsKey(userName)) {               // check if user connected to any channel
+                String channel = userChannelMap.get(userName);       // get that channel
+                userChannelMap.remove(userName);                      // disconnect him from it
+                broadcastMessage("Server", (userName + " left the channel"));
+                if(!userChannelMap.containsValue(channel)) {          // check if channel is empty
+                    System.out.println("channel is empty");
+                    channelList.remove(channel);                      // if so - remove channel from channel list
+                    broadcastMessage("Server", ("closing channel " + channel));
+                }
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    // TODO: fix joinChannel
+    public boolean joinChannel(Session user, String content) {
+        try {
+            String userName = userUsernameMap.get(user);
+            // check if channel exists and user isn't connected to any channel
+            if (userChannelMap.containsValue(content) && !userChannelMap.containsKey(userName)) {
+                userChannelMap.put(userName, content);
+                broadcastMessage("Server", (userName + " joined the channel"));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -21,6 +21,10 @@ function addChannel() {
 function exitChannel() {
     webSocket.send("exitChannel=");
 }
+// TODO: joinChannel doesn't work
+function joinChannel(channel) {
+    webSocket.send("joinChannel=" + channel);
+}
 
 //Send a message if it's not empty, then clear the input field
 function sendMessage(message) {
@@ -37,6 +41,18 @@ function updateChat(msg) {
     id("userlist").innerHTML = "";
     data.userlist.forEach(function (user) {
         insert("userlist", "<li>" + user + "</li>");
+    });
+    // clear list of channels
+    id("channellist").innerHTML = "";
+    // create list of channels from scratch
+    data.channelList.forEach(function (channel) {
+        var element = document.createElement('button');
+        element.onclick = function () {joinChannel (channel);}
+        element.style.width="150px";
+        var node = document.createTextNode(channel);
+    	element.appendChild(node);
+    	var list = id("channellist");
+    	list.appendChild(element);
     });
 }
 
