@@ -99,14 +99,8 @@ public class Chat {
         try {
             String userName = userUsernameMap.get(user);
             if(userChannelMap.containsKey(userName)) {               // check if user connected to any channel
-                String channel = userChannelMap.get(userName);       // get that channel
                 userChannelMap.remove(userName);                      // disconnect him from it
                 broadcastMessage("Server", (userName + " left the channel"));
-                if(!userChannelMap.containsValue(channel)) {          // check if channel is empty
-                    System.out.println("channel is empty");
-                    channelList.remove(channel);                      // if so - remove channel from channel list
-                    broadcastMessage("Server", ("closing channel " + channel));
-                }
                 return true;
             }
         } catch (Exception e) {
@@ -118,8 +112,8 @@ public class Chat {
     public boolean joinChannel(Session user, String content) {
         try {
             String userName = userUsernameMap.get(user);
-            // check if channel exists and user isn't connected to any channel
-            if (userChannelMap.containsValue(content) && !userChannelMap.containsKey(userName)) {
+            // check if user isn't connected to any channel
+            if (!userChannelMap.containsKey(userName)) {
                 userChannelMap.put(userName, content);
                 broadcastMessage("Server", (userName + " joined the channel"));
             }
