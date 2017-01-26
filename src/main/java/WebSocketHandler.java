@@ -24,20 +24,20 @@ public class WebSocketHandler {
         try {
             switch(reason) {
                 case "username":
-                    chat.addUser(user, content);
+                    if(chat.addUser(user, content));
                     break;
                 case "userMessage":
                     if (!chat.chatBotAsk(user, content))
-                        chat.broadcastInChannelHelp(user, content);
+                        if(chat.broadcastInChannelHelper(user, content));
                     break;
                 case "addChannel":
-                    chat.createChannel(user);
+                    if(chat.createChannel(user));
                     break;
                 case "exitChannel":
-                    chat.exitChannel(user);
+                    if(chat.exitChannel(user));
                     break;
                 case "joinChannel":
-                    chat.joinChannel(user, content);
+                    if(chat.joinChannel(user, content));
             }
         } catch (Exception e) {
             e.printStackTrace();

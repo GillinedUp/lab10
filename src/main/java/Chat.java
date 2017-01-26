@@ -72,9 +72,8 @@ public class Chat {
                 span().withClass("timestamp").withText(new SimpleDateFormat("HH:mm:ss").format(new Date()))
         ).render();
     }
-
-    // method for broadcasting
-    public boolean broadcastInChannelHelp(Session user, String content) {
+    // helper methods for broadcasting
+    public boolean broadcastInChannelHelper(Session user, String content) {
         if (userChannelMap.containsKey(userUsernameMap.get(user))) {           // check if user connected to any channel
             try {
                 broadcastInChannel(userUsernameMap.get(user), content);
@@ -85,7 +84,6 @@ public class Chat {
         }
         return false;
     }
-
     // user handling
     public boolean removeUser(Session user) {
         try {
@@ -99,13 +97,14 @@ public class Chat {
         return false;
     }
 
-    public void addUser(Session user, String content) {
+    public boolean addUser(Session user, String content) {
         if(!userUsernameMap.containsValue(content)) {                // if that name hasn't already taken
             try {
                 userUsernameMap.put(user, content);
                 broadcastMessage("Server", (content + " joined the chat"));
+                return true;
             } catch (Exception e) {
-                e.printStackTrace();
+                return false;
             }
         } else {
             try {
@@ -113,13 +112,13 @@ public class Chat {
                         .put("userMessage", "usernameIsTaken")        // send info to js
                 ));
             } catch (Exception e) {
-                e.printStackTrace();
+                return false;
             }
         }
+        return false;
     }
-
     // channel handling
-    public void createChannel(Session user) {
+    public boolean createChannel(Session user) {
         try {
             String channelName = "channel" + channelCount;
             String userName = userUsernameMap.get(user);
@@ -127,48 +126,53 @@ public class Chat {
             channelList.add(channelName);
             channelCount++;
             broadcastMessage("Server", (userName + " joined " + channelName));
+            return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;
         }
     }
 
-    public void exitChannel(Session user) {
+    public boolean exitChannel(Session user) {
         try {
             String userName = userUsernameMap.get(user);
             if(userChannelMap.containsKey(userName)) {               // check if user connected to any channel
                 userChannelMap.remove(userName);                     // disconnect him from it
                 broadcastMessage("Server", (userName + " left the channel"));
+                return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;
         }
+        return false;
     }
 
-    public void joinChannel(Session user, String content) {
+    public boolean joinChannel(Session user, String content) {
         try {
             String userName = userUsernameMap.get(user);
             // check if user isn't connected to any channel
             if (!userChannelMap.containsKey(userName)) {
                 userChannelMap.put(userName, content);
                 broadcastMessage("Server", (userName + " joined " + content));
+                return true;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            return false;
         }
+        return false;
     }
-
     // ChatBot
     public boolean chatBotAsk(Session user, String message) {
         String userName = userUsernameMap.get(user);
         String channelName = userChannelMap.get(userName);
         if(channelName.equals("chatBot")) {
             try {
-                broadcastInChannel("chatBot", chatBot.getAnswer(message));
+                broadcastInChannel(userName, chatBot.getAnswer(message));
                 return true;
             } catch (Exception e) {
                 return false;
             }
         } else {
+            System.out.println(channelName);
             return false;
         }
     }
