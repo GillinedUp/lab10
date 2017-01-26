@@ -14,7 +14,7 @@ import java.util.Locale;
  */
 public class ChatBot {
 
-    private String apiID = "4d62354b9eeb61e79715bf06b9abcc7c";
+    private String apiID = "";
     private String cityID = "3094802";
 
     public String getAnswer(String question) {
