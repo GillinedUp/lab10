@@ -10,9 +10,6 @@ public class WebSocketHandler {
     @OnWebSocketConnect
     public void onConnect(Session user) throws Exception {
         chat = ChatApp.getChatInstance();
-//        String username = "User" + Chat.nextUserNumber++;
-//        Chat.userUsernameMap.put(user, username);
-//        Chat.broadcastMessage(sender = "Server", msg = (username + " joined the chat"));
     }
 
     @OnWebSocketClose
@@ -30,7 +27,9 @@ public class WebSocketHandler {
                     if (chat.addUser(user, content)) {}
                     break;
                 case "userMessage":
-                    if (chat.broadcastInChannelHelper(user, content)) {}
+                    if (!chat.chatBotAsk(user, content)) {
+                        if (chat.broadcastInChannelHelper(user, content)) {}
+                    }
                     break;
                 case "addChannel":
                     if (chat.createChannel(user)) {}

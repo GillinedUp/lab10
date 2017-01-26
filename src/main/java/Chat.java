@@ -15,10 +15,12 @@ public class Chat {
     private Map<String, String> userChannelMap = new ConcurrentHashMap<>();
     private List<String> channelList = new CopyOnWriteArrayList<>();
     private int channelCount = 1;
+    private ChatBot chatBot = new ChatBot();;
 
     public void initialize() {
         staticFiles.location("/public"); //index.html is served at localhost:4567 (default port)
-        staticFiles.expireTime(1);
+        staticFiles.expireTime(300);
+        channelList.add("chatBot");
         webSocket("/chat", WebSocketHandler.class);
         init();
     }
@@ -71,16 +73,6 @@ public class Chat {
         ).render();
     }
     // helper methods for broadcasting
-    public boolean broadcastHelper(Session user, String content) {
-        try {
-            broadcastMessage(userUsernameMap.get(user), content);
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-
     public boolean broadcastInChannelHelper(Session user, String content) {
         if (userChannelMap.containsKey(userUsernameMap.get(user))) {           // check if user connected to any channel
             try {
@@ -106,12 +98,23 @@ public class Chat {
     }
 
     public boolean addUser(Session user, String content) {
-        try {
-            userUsernameMap.put(user, content);
-            broadcastMessage("Server", (content + " joined the chat"));
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
+        if(!userUsernameMap.containsValue(content)) {                // if that name hasn't already taken
+            try {
+                userUsernameMap.put(user, content);
+                broadcastMessage("Server", (content + " joined the chat"));
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return false;
+        } else {
+            try {
+                user.getRemote().sendString(String.valueOf(new JSONObject()
+                        .put("userMessage", "usernameIsTaken")        // send info to js
+                ));
+            } catch (Exception e) {
+                return false;
+            }
         }
         return false;
     }
@@ -150,13 +153,28 @@ public class Chat {
             String userName = userUsernameMap.get(user);
             // check if user isn't connected to any channel
             if (!userChannelMap.containsKey(userName)) {
-                System.out.println("joining channel");
                 userChannelMap.put(userName, content);
-                broadcastMessage("Server", (userName + " joined the channel"));
+                broadcastMessage("Server", (userName + " joined " + content));
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return false;
+    }
+    // ChatBot
+    public boolean chatBotAsk(Session user, String message) {
+        String userName = userUsernameMap.get(user);
+        String channelName = userChannelMap.get(userName);
+        if(channelName.equals("chatBot")) {
+            try {
+                broadcastInChannel(userName, chatBot.getAnswer(message));
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        } else {
+            System.out.println(channelName);
+            return false;
+        }
     }
 }

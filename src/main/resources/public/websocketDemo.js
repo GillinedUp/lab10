@@ -37,6 +37,11 @@ function sendMessage(message) {
 //Update the chat-panel, and the list of connected users
 function updateChat(msg) {
     var data = JSON.parse(msg.data);
+    if(data.userMessage == "usernameIsTaken") {
+        alert("Username has already been taken");
+        changeUsername();
+        return;
+    }
     insert("chat", data.userMessage);
     id("userlist").innerHTML = "";
     data.userlist.forEach(function (user) {
@@ -78,6 +83,14 @@ function checkCookie() {
         }
     }
     // send username to socketHandler
+    webSocket.send("username=" + username);
+}
+
+function changeUsername() {
+    username = prompt("Please enter your name:", "");
+    if (username != "" && username != null) {
+        setCookie("username", username, 365);
+    }
     webSocket.send("username=" + username);
 }
 
