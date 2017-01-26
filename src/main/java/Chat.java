@@ -72,8 +72,9 @@ public class Chat {
                 span().withClass("timestamp").withText(new SimpleDateFormat("HH:mm:ss").format(new Date()))
         ).render();
     }
-    // helper methods for broadcasting
-    public boolean broadcastInChannelHelper(Session user, String content) {
+
+    // method for broadcasting
+    public boolean broadcastInChannelHelp(Session user, String content) {
         if (userChannelMap.containsKey(userUsernameMap.get(user))) {           // check if user connected to any channel
             try {
                 broadcastInChannel(userUsernameMap.get(user), content);
@@ -84,6 +85,7 @@ public class Chat {
         }
         return false;
     }
+
     // user handling
     public boolean removeUser(Session user) {
         try {
@@ -97,29 +99,27 @@ public class Chat {
         return false;
     }
 
-    public boolean addUser(Session user, String content) {
+    public void addUser(Session user, String content) {
         if(!userUsernameMap.containsValue(content)) {                // if that name hasn't already taken
             try {
                 userUsernameMap.put(user, content);
                 broadcastMessage("Server", (content + " joined the chat"));
-                return true;
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return false;
         } else {
             try {
                 user.getRemote().sendString(String.valueOf(new JSONObject()
                         .put("userMessage", "usernameIsTaken")        // send info to js
                 ));
             } catch (Exception e) {
-                return false;
+                e.printStackTrace();
             }
         }
-        return false;
     }
+
     // channel handling
-    public boolean createChannel(Session user) {
+    public void createChannel(Session user) {
         try {
             String channelName = "channel" + channelCount;
             String userName = userUsernameMap.get(user);
@@ -127,28 +127,24 @@ public class Chat {
             channelList.add(channelName);
             channelCount++;
             broadcastMessage("Server", (userName + " joined " + channelName));
-            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    public boolean exitChannel(Session user) {
+    public void exitChannel(Session user) {
         try {
             String userName = userUsernameMap.get(user);
             if(userChannelMap.containsKey(userName)) {               // check if user connected to any channel
                 userChannelMap.remove(userName);                     // disconnect him from it
                 broadcastMessage("Server", (userName + " left the channel"));
-                return true;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
 
-    public boolean joinChannel(Session user, String content) {
+    public void joinChannel(Session user, String content) {
         try {
             String userName = userUsernameMap.get(user);
             // check if user isn't connected to any channel
@@ -159,21 +155,20 @@ public class Chat {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return false;
     }
+
     // ChatBot
     public boolean chatBotAsk(Session user, String message) {
         String userName = userUsernameMap.get(user);
         String channelName = userChannelMap.get(userName);
         if(channelName.equals("chatBot")) {
             try {
-                broadcastInChannel(userName, chatBot.getAnswer(message));
+                broadcastInChannel("chatBot", chatBot.getAnswer(message));
                 return true;
             } catch (Exception e) {
                 return false;
             }
         } else {
-            System.out.println(channelName);
             return false;
         }
     }
